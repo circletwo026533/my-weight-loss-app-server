@@ -1,1345 +1,184 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>轻享减脂 · 专业版</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-}
-
-:root {
-  --primary: #10B981;
-  --primary-light: #34D399;
-  --primary-dark: #059669;
-  --bg: #121212;
-  --card: #1E1E1E;
-  --card-light: #2A2A2A;
-  --text: #FFFFFF;
-  --text-secondary: #A0A0A0;
-  --radius: 24px;
-  --radius-sm: 16px;
-  --shadow: 0 8px 30px rgba(0,0,0,0.35);
-  --transition: all 0.25s ease;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  padding-bottom: 70px;
-  overflow-x: hidden;
-}
-
-/* 顶部标题 - 高度进一步缩小 */
-.header {
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  padding: 10px 20px;
-  border-radius: 0 0 16px 16px;
-  box-shadow: var(--shadow);
-  position: sticky;
-  top: 0;
-  z-index: 99;
-}
-.header h1 {
-  font-size: 17px;
-  font-weight: 700;
-}
-.header p {
-  font-size: 10px;
-  opacity: 0.85;
-  margin-top: 2px;
-}
-
-.page {
-  display: none;
-  padding: 20px 22px;
-  animation: fadeIn 0.3s ease forwards;
-}
-.page.active {
-  display: block;
-}
-@keyframes fadeIn {
-  from { opacity:0; transform: translateY(10px); }
-  to { opacity:1; transform: translateY(0); }
-}
-
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 18px;
-  box-shadow: var(--shadow);
-}
-.card-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card-title::before {
-  content: "";
-  width: 4px;
-  height: 18px;
-  background: var(--primary);
-  border-radius: 2px;
-}
-
-.input-label {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 12px 0 6px;
-  display: block;
-}
-
-.unit-row {
-  display: flex;
-  gap: 12px;
-  margin: 8px 0;
-}
-.unit-row input { flex:3; }
-.unit-row select { flex:1; padding:16px 12px; }
-
-.btn {
-  width: 100%;
-  background: linear-gradient(90deg, var(--primary), var(--primary-light));
-  color: #fff;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 16px;
-  font-size: 16px;
-  font-weight: 600;
-  margin-top: 20px;
-  cursor: pointer;
-}
-.btn:active { transform: scale(0.98); }
-.btn-outline {
-  background: transparent;
-  border: 1.5px solid var(--primary);
-  color: var(--primary);
-}
-
-input, select {
-  width: 100%;
-  background: var(--card-light);
-  color: var(--text);
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 16px 18px;
-  font-size: 16px;
-  outline: none;
-}
-input::placeholder { color: #666; }
-
-.exercise-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 18px;
-  background: var(--card);
-  border-radius: var(--radius-sm);
-  margin-bottom: 14px;
-  cursor: pointer;
-}
-.exercise-icon {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-}
-
-/* 底部导航 - 使用和顶部一样的绿色渐变背景 */
-.tabbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-  display: flex;
-  padding: 14px 0 10px;
-  border-radius: 24px 24px 0 0;
-  z-index: 98;
-}
-.tab {
-  flex: 1;
-  text-align: center;
-  font-size: 18px;
-  color: rgba(255,255,255,0.7);
-  cursor: pointer;
-}
-.tab.active {
-  color: #fff;
-  font-weight: 600;
-}
-
-.modal, .advice-modal, .update-modal {
-  position: fixed;
-  top: 0; left:0; right:0; bottom:0;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  padding: 24px;
-}
-.modal-content, .advice-content, .update-content {
-  background: var(--card);
-  border-radius: var(--radius);
-  width: 100%;
-  max-width: 420px;
-  padding: 32px 28px;
-}
-.modal-img {
-  width: 100%;
-  height: 120px;
-  background: var(--card-light);
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-.timer {
-  font-size: 36px;
-  font-weight: 700;
-  text-align: center;
-  color: var(--primary);
-  margin: 20px 0;
-}
-.advice-item {
-  background: var(--card-light);
-  padding: 16px;
-  border-radius: var(--radius-sm);
-  margin: 10px 0;
-  line-height: 1.6;
-}
-
-.flex { display: flex; gap:12px; margin-top:8px; }
-.flex > * { flex:1; }
-.label { font-size:14px; color:var(--text-secondary); margin-bottom:6px; }
-.value { font-size:24px; font-weight:700; color:var(--primary); }
-
-.date-picker {
-  margin-bottom: 16px;
-}
-.record-item {
-  padding: 12px 0;
-  border-bottom: 1px solid #333;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.record-item:last-child {
-  border-bottom: none;
-}
-.record-info {
-  flex: 1;
-}
-.record-value {
-  color: var(--primary);
-  font-weight: 600;
-}
-.sport-summary {
-  display: flex;
-  justify-content: space-between;
-  padding: 16px 0;
-  border-top: 1px solid #333;
-  margin-top: 16px;
-}
-.weight-input-group {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-.weight-input-group input {
-  flex: 1;
-}
-.version-info{
-  text-align:center;
-  margin-top:12px;
-  font-size:12px;
-  color:var(--text-secondary);
-}
+*{box-sizing:border-box;font-family:"SimSun","宋体",sans-serif;margin:0;padding:0;}
+body{background:#f5f7fa;padding:24px;color:#222;}
+.container{max-width:1280px;margin:0 auto;background:#ffffff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.08);padding:32px;}
+.header-bar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid #e5e7eb;}
+.header-bar input{padding:9px 12px;border:1px solid #d1d5db;border-radius:6px;font-size:14px;width:240px;}
+button{padding:9px 16px;border-radius:6px;border:none;cursor:pointer;font-size:14px;font-weight:normal;transition:0.2s;}
+.btn-primary{background:#165DFF;color:#fff;}
+.btn-success{background:#009944;color:#fff;}
+.btn-save-proj{background:#722ed1;color:#fff;}
+.btn-load-proj{background:#13c2c2;color:#fff;}
+.btn-add-block{background:#4069dd;color:#fff;margin:12px 0 20px;}
+.btn-add-rule{background:#22aa55;color:#fff;margin:8px 0;}
+.btn-del{background:#ed4c5c;color:#fff;padding:6px 10px;font-size:13px;float:right;}
+.title-preview{text-align:center;font-size:24px;margin-bottom:30px;color:#111;}
+.section-wrap{margin-bottom:36px;}
+.section-title{font-size:20px;margin-bottom:16px;padding-left:10px;border-left:4px solid #165DFF;}
+.opinion-block{border:1px solid #cbd5e1;background:#fbfdff;border-radius:8px;padding:20px;margin-bottom:18px;position:relative;}
+.block-subtitle{font-size:16px;margin-bottom:10px;}
+.img-area{border:1px solid #d1d5db;border-radius:6px;padding:14px;min-height:200px;outline:none;font-size:14px;line-height:1.6;background:#fff;}
+.img-area img{max-width:96%;border:1px solid #eee;margin:6px 0;}
+.text-area{border:1px solid #d1d5db;border-radius:6px;padding:14px;min-height:220px;outline:none;font-size:14px;line-height:1.6;background:#fff;margin-top:14px;}
+.tool-small{margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.tool-small button{padding:6px 10px;background:#fff;border:1px solid #ccc;color:#333;font-weight:normal;}
+.search-bar{margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+#searchKey{padding:6px 10px;width:260px;border:1px solid #ccc;border-radius:4px;font-size:14px;}
+#searchResult{margin-top:8px;max-height:240px;overflow-y:auto;border:1px solid #d1d5db;background:#fff;border-radius:4px;}
+.search-item{padding:6px 10px;cursor:pointer;border-bottom:1px solid #eee;font-size:13px;}
+.search-item:hover{background:#eef5ff;}
+.rule-wrap{border:1px solid #cbd5e1;border-radius:8px;padding:20px;background:#fbfdff;}
+.rule-box{border:1px solid #d1d5db;border-radius:6px;padding:14px;min-height:320px;max-height:600px;overflow-y:auto;outline:none;font-size:14px;line-height:1.6;background:#fff;white-space:pre-line;}
+.export-hide{display:block;}
+#fileLoadInput{display:none;}
 </style>
 </head>
-
 <body>
+<div class="container">
+    <div class="header-bar">
+        <span>铺号：</span>
+        <input id="shopNo" placeholder="如：1051">
+        <span>店铺名称：</span>
+        <input id="shopName" placeholder="填写商户名称">
+        <button class="btn-primary" onclick="refreshTitle()">刷新文档标题</button>
+        <button class="btn-success" onclick="exportDoc()">导出Word文档</button>
+        <button class="btn-save-proj" onclick="saveProject()">💾保存项目存档</button>
+        <button class="btn-load-proj" onclick="document.getElementById('fileLoadInput').click()">📂载入项目存档</button>
+        <input id="fileLoadInput" type="file" accept=".json" onchange="loadProject(event)">
+    </div>
+    <div id="titlePreview" class="title-preview">蚌埠新城吾悦商业管理有限公司 商铺审图意见</div>
 
-<div class="header">
-  <h1>轻享减脂</h1>
-  <p>专业减脂助手 · 健康生活</p>
+
+    <!-- 第一部分：审图意见 -->
+    <div class="section-wrap">
+        <div class="section-title">一、审图意见</div>
+        <button class="btn-add-block" onclick="addNewOpinionBlock()">+ 新增一组【图片+审图文字】</button>
+        <div id="opinionContainer">
+            <div class="opinion-block">
+                <button class="btn-del" onclick="removeBlock(this)">删除本组</button>
+                <div class="block-subtitle export-hide">图纸截图（Ctrl+V直接粘贴截图）</div>
+                <div class="tool-small export-hide">
+                    <button onclick="triggerImgUpload(this)">📷 上传图片</button>
+                    <input type="file" accept="image/*" style="display:none;">
+                    <span>提示：截图后直接Ctrl+V粘贴到下方框内</span>
+                </div>
+                <div class="img-area" contenteditable="true"></div>
+
+                <div class="block-subtitle export-hide">审图意见文字【搜索框可检索消防法规】</div>
+                <div class="search-bar export-hide">
+                    <input id="searchKey" placeholder="关键词检索条款：开业检查/防火分区/喷淋/装修材料" oninput="searchRule(this.value)">
+                </div>
+                <div id="searchResult" class="export-hide"></div>
+                <div class="text-area" contenteditable="true">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 第二部分：通用设计及施工要求 -->
+    <div class="section-wrap">
+        <div class="section-title">二、通用设计及施工要求</div>
+        <div class="rule-wrap">
+            <button class="btn-add-rule" onclick="addRuleLine()">+ 新增一条条款</button>
+            <div id="ruleBox" class="rule-box" contenteditable="true">其他设计及现场施工应考虑如下因素：
+土建装饰：
+1. 进场材料防火等级必须满足（天花A级、墙面B1级、地面A级），材料包装上必须有名称、合格证并提供本地送检检验报告。
+2. 商铺如自行拆改防火门，拆改后防火门必须满足原设计防火要求，后厨消防通道门为甲级钢制防火门，外立面玻璃及玻璃防火门必须满足耐火极限2小时且防火玻璃厚度满足要求（一层19mm,二层至四层15mm），外立面防火门无内退做法不得向外开启（向内开启需考虑内部布局），如有内退外开启后不得侵占公区红线及消防疏散通道。
+3. 餐饮商铺砌筑厨房墙体必须为轻质砖砌筑到顶，不得留有空档，不得使用粘土砖等非轻质材料（包括立面装饰）。墙体砌筑时（200mm厚墙体），如高度超过4米应增加圈梁，转角及长度超过4米中间应设置构造柱，柱或剪力墙连接处应设置拉接筋，后厨与前厅、商铺租赁区与公区必须保证独立的防火分区。
+4. 商铺内的地面装饰完成面须与公共区地面砖持平，且在接缝处安装5mm实心拉丝原色不锈钢嵌条
+5. 商铺天花龙骨必须为轻钢龙骨，不得夹杂木龙骨。天花材料不得使用A级以下材料（不得使用木工板），使用石膏板必须为双层可上人石膏板；吊顶吊筋打孔时不宜过深，防止打破防水层。为了方便吊顶内设备检修，在商铺吊顶的适当位置预留检修口（500mm*500 mm），检修口四周做加固处理以便于上人检修。厨房区域必须做扣板吊顶，防火玻璃内侧吊顶集热槽尺寸须满足500MM宽*300MM高，若无吊顶靠近玻璃的侧面喷淋需加装集热罩。
+6. 现场如采用轻质隔墙内部填充10cm厚防火岩棉，不得参杂使用木工板，必须使用满足B1级的阻燃板（刷三遍防火涂料）。
+7. 室内步行街公共区域的装修材料和固定设施的制作材料的燃烧性能为A级，店招应采用不然（A）级或难燃（B1级）材料，其他部位的装修除扶手、导向标识外，宜采用A级材料。
+8. 地板垫高层必须使用轻质材料推荐使用陶粒，严禁填充沙石、装修垃圾等材料。
+9. 顶部楼板如需开孔首先需提供书面申请上报商管公司同意后方可施工，对开孔位置及周围区域进行防水施工，防止后期漏水。
+10. 厨房墙体砌筑须先做30cm高地梁打底后再用加气块砌筑墙体，后厨防水施工须在土建基层先做两遍防水一层柔性一层刚性，做完闭水试验后再进行回填垫高，然后再做一遍防水，防水高度0.5米，闭水试验48小时后验收。
+11. 预制板隔墙不得开槽，敷设线管可明装。
+强电：
+1. 电箱为保证后期营业员闭店操作性，需设计一键闭店；
+2. 隔墙为陶粒材质，不允许开槽布管；
+3. 库房内严禁设置插座，须使用防爆灯具（厨房使用三防灯具及开关、插座，仓库使用防爆型灯具、开关、接线盒）；
+4. 商铺的配电箱不可安装在相邻商铺之间的间隔墙上；
+5. 线路建议从天花上下引至墙面；
+6. 供电导线必须选用低烟无卤阻燃型导线，导线上应有标注WDZB-BYJ标记；线管均需采用金属管布线，连接处要装跨接线；用电容量在5KW以上的设备必须选用双层阻燃塑皮铜芯线缆，相线为红、黄、绿三种颜色，零线为蓝色，地线为黄/绿（双色线），零线与地线务必不可混淆使用；导线截面积应与所承担的设备功率相匹配；导线驳接处须坚固可靠，阻燃绝缘；所有设备金属外壳均需可靠连接专用接地线；
+7. 配电箱与插座不可设置在炉灶上方（避免热蒸汽） 或能被物体遮挡住的位置（应保证足够的空间）；
+8. 灯带灯槽应选用A级防火材料；
+9. 需设置带漏电保护器控制的单独店招回路。插座采用漏保，照明回路需设置1P+N两极式空开；
+10. 电源线连接须使用阻燃线并加穿阻燃护套，禁止使用电感镇流器，灯具、镇流器或其它用电设备安装位置须垫阻燃隔热垫，灯箱须预留散热孔或强制排风装置；不可使用射灯类灯具；
+11. 补风、排风机的电气控制必须为联动控制（即同时启动、同时停止），以避免铺内出现负压情况；
+12. 现场施工临电箱需加装漏电保护器，不可使用太阳灯、碘钨灯，临时照明可使用36V行灯变压器；不可使用热得快、电饭锅等器具；
+13. 电工、电焊工等专业操作需持证上岗施工。
+暖通:
+1. 所有给水管道封闭前要对管道做打压试验并报请业主方工程和物管人员现场确认后再行隐蔽施工。
+2. 铺内各种污水排放必须先经一级隔油池，再接到预留的排水管道，商铺在装修时候需要对各排水管口做好保护措施，以免异物落入管内造成堵塞。并要求在隔油池前端增设隔渣池一个，且隔渣池进入排水管道入口设置目数较密的滤网。
+3. 厨房内要求明渠排水沟排水。总下水口必须加装不可拆卸不锈钢滤网，排水明沟需加装防滑盖板，便于槽内沉渣的清除。制冰机用水必须单独一路，单独水阀控制
+4. 商铺的天然气立管水平管不能直接封闭在吊顶内，且途径的吊顶要采用百叶，吊顶上方用П型防火材料将管道隔开。
+5. 厨房区域必须安装自动灭火系统，自动灭火系统水淋容量应大于20L，灭火剂容量应大于20L，动作作用时间不小与120秒。
+6. 厨房区域排油烟必须加装一级油烟净化器。
+7. 对于火锅、烤肉类营业区域味道较大的餐饮店铺建议在入户门处要求业户加装大功率风幕机以及适当加大营业区域的排风量，使营业区域保持空气负压避免营业区域味道窜入商场。
+8. 厨房区域产生油烟及大量蒸汽的设备应设排气罩,排气罩下沿距灶面的距离不宜大于1M；
+9. 在吊顶装修及隐蔽工程设备安装时需预留空调、风机盘管的维修空间；对于商铺内的消防阀门、给水阀门及空调系统阀门，必须预留检修口，检修口尺寸为550*550mm，要求每台设备均预留检修口。
+10. 对于因装修进行墙体分割造成的消防风口被封堵的，风口必须做相应移动，费用商户自理。
+11. 商铺内的加密喷淋及集热槽为集团统一做法，不需对其做任何更改。
+12. 设计一键闭店；插座回路需设计漏电保护开关；
+弱电：
+1. 有吊顶的商户需要做集热槽，规格要求为30CM*50CM.裸顶的商户需要对侧喷窗喷安装L型集热罩。
+2. 对公区的玻璃门需安装电子门吸，规格为常闭型电子门吸，12V/24V供电均可，电源盒需安装在电箱或便于维修的区域内，商户自行安装。应在配电箱内独立回路（线材要求规格：ZR-RVV2（或3）*1.5阻燃国标2芯或3芯铜丝软护套线）独立标识，并在电箱的配电图纸中标识出来。防火分隔部位设置防火卷帘时，应符合下列规定： 除中庭外，当防火分隔部位的宽度不大于30m时，防火卷帘的宽度不应大于10m；当防火分隔部位的宽度大于30m时，防火卷帘的宽度不应大于该部位宽度的1/3，且不应大于20m。
+3. 涉及煎炸烹炒及明火作业，灶台上方需安装厨房自动灭火设备。
+4. 如使用燃气，燃气灶区域需安装燃气泄露探测报警设备，并将报警信号接入到广场的燃气报警主机系统内。
+5. 铺内消防手报、风阀执行器、消防广播等不得随意拆改，移动，如确有改移需求需委托二消单位进行施工，外请单位需先提供相应资质报工程审批后进行。现场手动操作设备需预留操作空间，禁止遮挡隐藏。
+6. 单元密闭房间（如仓库）内应增设感烟探测器，及喷淋。新增加房间（墙体到顶或墙体距离顶棚高度小于房间净高的5%时）内应增设感烟探测器及喷淋。如有强弱电间需安装悬挂式干粉灭火器。
+7. 商铺内有若干消火栓，在装修时禁止遮挡，放置物品，需保证能随时打开使用。
+8. 感烟探测器位置应距离空调送风口1.5m以上、需吸顶安装，顶部作业时禁止拆除/剪断/污损感烟探测器，顶部喷涂或飞尘作业时做好保护以免对内部元件造成损坏。
+9. 厨房区域应选用93度绿色快速响应喷淋头，非厨房区域选用68度红色快速响应喷淋头。厨房选用感温探测器，大厅选用感烟探测器。
+10. 商户对公区门内两侧立柱或隔墙顶部有预留的多媒体箱，内有光纤线可供商户安装宽带（不限运营商，需自行联系安装），安装宽带时考虑美观布线要求禁止飞线。
+11. 如商户对公区门位置有变更（门移位，门新增，门拓宽等），需要提前对客流的位置进行确定，并从商户内光纤箱放置客流线路至门上方公区吊顶内，具体已现场对接为准。
+(临时用电作业)
+1. 安全教育及交底(培训)主要内容：
+2. 作业现场的生产条件、安全设施和安全工器具等应符合国家或行业标准规定的要求，工作人员的劳动防护用品（绝缘靴、绝缘手套等）应合格、齐备。
+3. 配备电气作业操作牌及安全警示标志，防止人员意外触电或操作。
+4. 检修中使用的动力电源箱的总开关都应加装剩余电流动作保护器（漏电保护器），如果总开关未加装，则支路开关都应加装。
+5. 连接电动机械及电动工具的电气回路应单独设开关或插座，并装设高灵敏动作的剩余电流动作保护器（漏电保护器），严禁一台开关接两台及以上的电动设施；所有用电设备应做到“一机一闸一保护”。
+6. 所有电气设备的金属外壳均应有良好的接地装置；使用中不得将接地装置拆除或对其进行任何工作。
+7. 现场照明应满足所在区域安全作业亮度、防爆、防水等要求。
+8. 使用合适的灯具和带护罩的灯座，防止意外接触或破裂；使用不导电材料悬挂导线。
+9. 行灯电源电压不超过 36V，灯泡外部有金属保护罩。
+10. 在潮湿和易触及带电体场所的照明电源电压不得大于 24V，在特别潮湿场所、导电良好的地面、锅炉或塔、釜、槽、罐等金属容器内的照明电源电压不得大于 12V，其他场所临时照明行灯电压不得超过 36V。
+11. 在防爆场所使用的临时电源，电器元件和线路要达到相应的防爆技术要求，并采取相应的防爆安全措施。
+12．室外的临时用电开关需有防雨措施，开关安装离地面不得低于 1.3m。
+13. 每个作业点消防器材的配备、使用、维护等应遵守国家有关规定，至少配置 2 个适合电气火灾的专用灭火器；保持消防通道畅通。
+14. 如当地政府及法律法规有其他相关要求，均须严格参照执行</div>
+        </div>
+    </div>
 </div>
 
-<!-- 首页 -->
-<div id="home" class="page active">
-  <div class="card">
-    <div class="card-title">今日数据</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div><div class="label">减脂天数</div><div class="value" id="day">0</div></div>
-      <div><div class="label">BMI</div><div class="value" id="bmi">--</div></div>
-    </div>
-    <div style="margin-top:16px;">
-      <div class="label">已减重（晨间对比）</div><div class="value" id="lost">0 kg</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">今日体重记录</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div><div class="label">早晨体重</div><div class="value" id="morningWt">--</div></div>
-      <div><div class="label">晚上体重</div><div class="value" id="nightWt">--</div></div>
-    </div>
-    <div style="padding-top:12px;border-top:1px solid #333;margin-top:12px;">
-      <div class="label">当日早晚波动</div><div class="value" id="diffWt">--</div>
-      <div style="font-size:13px;margin-top:4px;" id="diffTip"></div>
-    </div>
-    <button class="btn" onclick="go('weight')">记录体重</button>
-  </div>
-
-  <div class="card">
-    <div class="card-title">今日运动</div>
-    <div id="todaySportRecords">暂无运动记录</div>
-    <div class="sport-summary">
-      <div>
-        <div class="label">总时长</div>
-        <div class="value" id="totalSportTime">0分钟</div>
-      </div>
-      <div>
-        <div class="label">总消耗</div>
-        <div class="value" id="totalSportCal">0 kcal</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">晨间体重趋势</div>
-    <canvas id="weightChart" height="220"></canvas>
-  </div>
-
-  <div class="flex">
-    <button class="btn" onclick="go('diet')">记录饮食</button>
-    <button class="btn" onclick="go('sport')">开始运动</button>
-  </div>
-</div>
-
-<!-- 体重 -->
-<div id="weight" class="page">
-  <div class="card">
-    <div class="card-title">体重记录</div>
-    <div class="date-picker">
-      <label class="input-label">选择日期</label>
-      <input type="date" id="weightDate" class="date-input">
-    </div>
-    
-    <label class="input-label">体重记录（kg）</label>
-    <div class="weight-input-group">
-      <input id="morningWeight" type="number" step="0.1" placeholder="早晨空腹体重">
-      <input id="nightWeight" type="number" step="0.1" placeholder="晚上睡前体重">
-    </div>
-    
-    <button class="btn" onclick="saveWeight()">保存体重记录</button>
-  </div>
-  
-  <div class="card">
-    <div class="card-title">体重记录列表</div>
-    <div id="weightRecordsList">暂无体重记录</div>
-  </div>
-  
-  <div class="card">
-    <div class="card-title">晨间体重对比分析</div>
-    <div id="weightAnalysis" style="text-align:center;padding:10px 0;">
-      请记录至少两天的晨间体重以查看对比
-    </div>
-    <button class="btn btn-outline" onclick="showAIDietAdvice()">查看AI饮食建议</button>
-  </div>
-</div>
-
-<!-- 饮食 -->
-<div id="diet" class="page">
-  <div class="card">
-    <div class="card-title">饮食记录</div>
-    <label class="input-label">用餐类型</label>
-    <select id="mealType">
-      <option>早餐</option><option>午餐</option><option>晚餐</option><option>加餐</option>
-    </select>
-
-    <label class="input-label">选择食物</label>
-    <select id="foodSelect" onchange="autoFillCalAndUnit()">
-      <option value="">请选择食物</option>
-      <optgroup label="🥦 蔬菜">
-        <option value="西兰花|34|克">西兰花 34kcal/100g</option>
-        <option value="黄瓜|16|克">黄瓜 16kcal/100g</option>
-      </optgroup>
-      <optgroup label="🍗 蛋白">
-        <option value="鸡胸肉|165|克">鸡胸肉 165kcal/100g</option>
-        <option value="鸡蛋|143|个">鸡蛋 143kcal/个</option>
-      </optgroup>
-      <optgroup label="🍚 主食">
-        <option value="米饭|116|碗">米饭 116kcal/100g</option>
-        <option value="玉米|106|根">玉米 106kcal/100g</option>
-      </optgroup>
-      <optgroup label="🍹 饮品">
-        <option value="苹果|52|个">苹果 52kcal/100g</option>
-        <option value="奶茶|300|杯">奶茶 300kcal/杯</option>
-      </optgroup>
-    </select>
-
-    <label class="input-label">食物名称</label>
-    <input id="foodName" placeholder="例如：去皮鸡腿">
-
-    <label class="input-label">食用量</label>
-    <div class="unit-row">
-      <input id="amount" type="number" value="1" oninput="calcTotalCal()">
-      <select id="unit" onchange="calcTotalCal()">
-        <option value="克">克</option><option value="个">个</option><option value="碗">碗</option>
-        <option value="杯">杯</option><option value="根">根</option><option value="片">片</option><option value="份">份</option>
-      </select>
-    </div>
-
-    <label class="input-label">每100g热量</label>
-    <input id="calBase" readonly>
-
-    <label class="input-label">总热量</label>
-    <input id="totalCal" readonly>
-
-    <button class="btn" onclick="addFood()">保存饮食记录</button>
-  </div>
-
-  <div class="card">
-    <div class="card-title">今日饮食</div>
-    <div id="dietRecords">暂无记录</div>
-  </div>
-</div>
-
-<!-- 运动 -->
-<div id="sport" class="page">
-  <div class="card">
-    <div class="card-title">推荐训练</div>
-    <div class="exercise-card" onclick="openModal('高抬腿燃脂','🏃',[
-      '📌 动作要点：',
-      '1. 身体直立站立，双脚与肩同宽，核心收紧',
-      '2. 快速交替抬起左右腿，膝盖尽量抬至胸口高度',
-      '3. 手臂自然前后摆动，保持身体平衡',
-      '4. 上半身保持稳定，不要左右晃动',
-      '5. 呼吸节奏：抬腿时呼气，下落时吸气',
-      '💡 训练建议：每组30秒，休息15秒，完成4组'
-    ],30,5.5)">
-      <div class="exercise-icon">🏃</div>
-      <div class="exercise-info"><h4>高抬腿燃脂</h4><p>30秒/组 | 全身燃脂</p></div>
-    </div>
-    <div class="exercise-card" onclick="openModal('平板支撑','🧎',[
-      '📌 动作要点：',
-      '1. 双肘弯曲支撑在地面，肘部位于肩膀正下方',
-      '2. 双腿向后伸直，脚尖点地，身体呈一条直线',
-      '3. 收紧核心和臀部，不要塌腰或翘臀',
-      '4. 头部自然放松，目光看向地面',
-      '5. 保持均匀呼吸，不要憋气',
-      '💡 训练建议：每组40秒，休息20秒，完成3组'
-    ],40,3.8)">
-      <div class="exercise-icon">🧎</div>
-      <div class="exercise-info"><h4>平板支撑</h4><p>40秒/组 | 核心塑形</p></div>
-    </div>
-    <div class="exercise-card" onclick="openModal('仰卧卷腹','🩸',[
-      '📌 动作要点：',
-      '1. 仰卧在瑜伽垫上，膝盖弯曲，双脚踩实地面',
-      '2. 双手轻贴耳朵两侧，不要用力抱头',
-      '3. 腹部发力，将上半身卷起，下背部贴地',
-      '4. 卷腹时呼气，下放时吸气，动作缓慢可控',
-      '5. 感受腹部肌肉的收缩，避免用脖子发力',
-      '💡 训练建议：每组15次，休息30秒，完成4组'
-    ],15,4.2)">
-      <div class="exercise-icon">🩸</div>
-      <div class="exercise-info"><h4>仰卧卷腹</h4><p>15次/组 | 瘦肚子</p></div>
-    </div>
-    <div class="exercise-card" onclick="openModal('开合跳','💥',[
-      '📌 动作要点：',
-      '1. 双脚并拢站立，双手自然垂于身体两侧',
-      '2. 向上跳起，双脚向两侧分开至略宽于肩',
-      '3. 同时双手向上举过头顶，掌心相对',
-      '4. 再次跳起，双脚并拢，双手回落至初始位置',
-      '5. 落地时前脚掌先着地，膝盖微屈缓冲',
-      '💡 训练建议：每组40次，休息20秒，完成4组'
-    ],40,6.8)">
-      <div class="exercise-icon">💥</div>
-      <div class="exercise-info"><h4>开合跳</h4><p>40次/组 | 高效燃脂</p></div>
-    </div>
-  </div>
-  
-  <div class="card">
-    <div class="card-title">运动记录</div>
-    <div id="sportRecordsList">暂无运动记录</div>
-  </div>
-</div>
-
-<!-- 我的 -->
-<div id="mine" class="page">
-  <div class="card">
-    <div class="card-title">个人资料</div>
-    <label class="input-label">身高（cm）</label><input id="profileHeight">
-    <label class="input-label">初始体重（kg）</label><input id="profileStartWeight">
-    <label class="input-label">目标体重（kg）</label><input id="profileTargetWeight">
-    <button class="btn" onclick="saveProfile()">保存</button>
-  </div>
-  
-  <div class="card">
-    <div class="card-title">减脂统计</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      <div>
-        <div class="label">总运动时长</div>
-        <div class="value" id="allSportTime">0分钟</div>
-      </div>
-      <div>
-        <div class="label">总消耗热量</div>
-        <div class="value" id="allSportCal">0 kcal</div>
-      </div>
-    </div>
-    <div style="margin-top:16px;">
-      <div class="label">体重记录天数</div>
-      <div class="value" id="weightRecordDays">0天</div>
-    </div>
-    <div style="margin-top:8px;">
-      <div class="label">累计减重（晨间）</div>
-      <div class="value" id="totalLostWeight">0 kg</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">应用升级</div>
-    <label class="input-label">更新服务器地址（可选）</label>
-    <input id="updateUrl" placeholder="例如: https://example.com/app/">
-    <button class="btn btn-outline" onclick="checkUpdate()">检查更新</button>
-    <button class="btn" style="margin-top:8px;background:#333;" onclick="saveUpdateUrl()">保存服务器地址</button>
-    <div class="version-info">当前版本 v1.1.0</div>
-  </div>
-</div>
-
-<!-- 运动弹窗 -->
-<div class="modal" id="exerciseModal">
-  <div class="modal-content">
-    <div class="modal-img" id="modalImg"></div>
-    <h3 id="modalTitle"></h3>
-    <div id="modalSteps" style="line-height:1.8;margin-bottom:20px;"></div>
-    <div class="timer" id="modalTimer">00:00</div>
-    <div style="text-align:center;margin-bottom:20px;">
-      <span id="modalCal">预计消耗：0 kcal</span>
-    </div>
-    <div class="flex">
-      <button class="btn" onclick="startTimer()">开始</button>
-      <button class="btn" onclick="pauseTimer()">暂停</button>
-      <button class="btn" onclick="finishExercise()">完成</button>
-    </div>
-  </div>
-</div>
-
-<!-- AI建议弹窗 -->
-<div class="advice-modal" id="adviceModal">
-  <div class="advice-content">
-    <h3>AI 饮食建议</h3>
-    <div id="adviceContent"></div>
-    <button class="btn" onclick="closeAdvice()">关闭</button>
-  </div>
-</div>
-
-<!-- 升级弹窗 -->
-<div class="update-modal" id="updateModal">
-  <div class="update-content">
-    <h3 id="updateTitle">检查更新</h3>
-    <div id="updateContent" style="line-height:1.7;margin:16px 0;"></div>
-    <button class="btn" onclick="closeUpdate()">关闭</button>
-  </div>
-</div>
-
-<!-- 导航 -->
-<div class="tabbar">
-  <div class="tab" onclick="go('home')">首页</div>
-  <div class="tab" onclick="go('weight')">体重</div>
-  <div class="tab" onclick="go('diet')">饮食</div>
-  <div class="tab" onclick="go('sport')">运动</div>
-  <div class="tab" onclick="go('mine')">我的</div>
-</div>
 
 <script>
-// 单位换算配置
-const unitConfig = {
-  "碗":{"米饭":150,"默认":100},
-  "个":{"鸡蛋":50,"苹果":200,"默认":100},
-  "根":{"玉米":200,"默认":100},
-  "片":{"全麦面包":50,"默认":100},
-  "杯":{"奶茶":300,"默认":100},
-  "份":{"默认":100},
-  "克":{"默认":1}
-};
-
-const APP_VERSION = "1.1.0";
-
-// 初始化数据
-let data = {
-  profile:{h:165,iw:65,tw:55}, 
-  weight:[], 
-  diet:[], 
-  sport:[],
-  daily:{}
-};
-
-// 尝试读取本地存储
-const localData = localStorage.getItem('fit_pro_v4');
-if(localData) {
-  try {
-    data = JSON.parse(localData);
-  } catch(e) {
-    localStorage.setItem('fit_pro_v4', JSON.stringify(data));
-  }
-} else {
-  localStorage.setItem('fit_pro_v4', JSON.stringify(data));
-}
-
-// 工具函数：格式化日期
-function formatDate(dateStr) {
-  const date = new Date(dateStr);
-  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
-}
-
-// 获取今日日期
-const today = formatDate(new Date());
-
-// 初始化日期选择器默认值为今日
-window.onload = function() {
-  document.getElementById('weightDate').value = today;
-  // 初始化个人资料输入框
-  document.getElementById('profileHeight').value = data.profile.h;
-  document.getElementById('profileStartWeight').value = data.profile.iw;
-  document.getElementById('profileTargetWeight').value = data.profile.tw;
-  // 初始化更新URL输入框
-  document.getElementById('updateUrl').value = getUpdateUrl();
-  // 强制刷新所有数据
-  go('home');
-  refreshAll();
-}
-
-let timerInterval, timerSeconds = 0, currentExerciseTime = 0;
-let currentExerciseName = '', currentCalPerMin = 0;
-
-// ========== 页面切换 ==========
-function go(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(page).classList.add('active');
-  const tabs = ['home','weight','diet','sport','mine'];
-  document.querySelector(`.tab:nth-child(${tabs.indexOf(page)+1})`).classList.add('active');
-  // 强制刷新所有数据
-  setTimeout(() => {
-    refreshAll();
-  }, 100);
-}
-
-// ========== 体重保存 ==========
-function saveWeight() {
-  const date = document.getElementById('weightDate').value;
-  const morningVal = +document.getElementById('morningWeight').value;
-  const nightVal = +document.getElementById('nightWeight').value;
-  
-  if(!date) {
-    alert('❌ 请选择日期');
-    return;
-  }
-  
-  if(!morningVal && !nightVal) {
-    alert('❌ 请至少填写早晨或晚上的体重值');
-    return;
-  }
-  
-  if(morningVal && (morningVal <= 0 || morningVal > 300)) {
-    alert('❌ 早晨体重请输入0-300之间的有效数值');
-    return;
-  }
-  
-  if(nightVal && (nightVal <= 0 || nightVal > 300)) {
-    alert('❌ 晚上体重请输入0-300之间的有效数值');
-    return;
-  }
-  
-  if(!data.daily[date]) data.daily[date] = {};
-  if(morningVal) data.daily[date].m = morningVal;
-  if(nightVal) data.daily[date].n = nightVal;
-  
-  localStorage.setItem('fit_pro_v4', JSON.stringify(data));
-  alert(`✅ ${date} 体重记录保存成功！`);
-  
-  document.getElementById('morningWeight').value = '';
-  document.getElementById('nightWeight').value = '';
-  
-  refreshAll();
-}
-
-// ========== 饮食保存 ==========
-function autoFillCalAndUnit() {
-  let v = document.getElementById('foodSelect').value;
-  if(!v) return;
-  let [name, cal, unit] = v.split('|');
-  document.getElementById('foodName').value = name;
-  document.getElementById('calBase').value = cal;
-  document.getElementById('unit').value = unit;
-  calcTotalCal();
-}
-
-function calcTotalCal() {
-  let name = document.getElementById('foodName').value;
-  let base = +document.getElementById('calBase').value || 0;
-  let amt = +document.getElementById('amount').value || 1;
-  let unit = document.getElementById('unit').value;
-  let ratio = unitConfig[unit]?.[name] || unitConfig[unit]?.默认 || 1;
-  document.getElementById('totalCal').value = Math.round(base * amt * ratio / 100);
-}
-
-function addFood() {
-  let t = document.getElementById('mealType').value;
-  let n = document.getElementById('foodName').value.trim();
-  let a = document.getElementById('amount').value.trim();
-  let u = document.getElementById('unit').value;
-  let c = +document.getElementById('totalCal').value;
-
-  if(!n) {
-    alert('❌ 请填写食物名称');
-    return;
-  }
-  if(!a || isNaN(a) || a <= 0) {
-    alert('❌ 请填写有效食用量（大于0）');
-    return;
-  }
-  if(!c || c <= 0) {
-    alert('❌ 请选择食物或填写有效热量值');
-    return;
-  }
-
-  data.diet.push({ d: today, t, n, a, u, c });
-  localStorage.setItem('fit_pro_v4', JSON.stringify(data));
-  alert('✅ 饮食记录保存成功！');
-
-  document.getElementById('foodSelect').value = '';
-  document.getElementById('foodName').value = '';
-  document.getElementById('amount').value = 1;
-  document.getElementById('unit').value = '克';
-  document.getElementById('calBase').value = '';
-  document.getElementById('totalCal').value = '';
-
-  refreshAll();
-}
-
-// ========== 运动模块 ==========
-function openModal(title, icon, steps, time, calPerMin) {
-  currentExerciseName = title;
-  currentExerciseTime = time;
-  currentCalPerMin = calPerMin;
-  timerSeconds = 0;
-  
-  document.getElementById('modalTitle').innerText = title;
-  document.getElementById('modalImg').innerText = icon;
-  document.getElementById('modalSteps').innerHTML = steps.map(s => `<div>${s}</div>`).join('');
-  document.getElementById('modalTimer').innerText = '00:00';
-  document.getElementById('modalCal').innerText = `预计消耗：${Math.round(time/60 * calPerMin)} kcal`;
-  
-  clearInterval(timerInterval);
-  document.getElementById('exerciseModal').style.display = 'flex';
-}
-
-function startTimer() {
-  clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timerSeconds++;
-    const m = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
-    const s = String(timerSeconds % 60).padStart(2, '0');
-    document.getElementById('modalTimer').innerText = `${m}:${s}`;
-    
-    const calBurned = Math.round(timerSeconds/60 * currentCalPerMin);
-    document.getElementById('modalCal').innerText = `已消耗：${calBurned} kcal`;
-    
-    if(timerSeconds === currentExerciseTime) {
-      alert('🎉 恭喜完成一组训练！');
-      clearInterval(timerInterval);
-    }
-  }, 1000);
-}
-
-function pauseTimer() {
-  clearInterval(timerInterval);
-  alert('⏸️ 训练已暂停，点击开始继续');
-}
-
-function finishExercise() {
-  clearInterval(timerInterval);
-  
-  if(timerSeconds <= 0) {
-    alert('❌ 请先开始训练并记录时长');
-    closeModal();
-    return;
-  }
-  
-  const exerciseMinutes = (timerSeconds / 60).toFixed(1);
-  const calBurned = Math.round(timerSeconds/60 * currentCalPerMin);
-  
-  data.sport.push({
-    d: today,
-    name: currentExerciseName,
-    time: timerSeconds,
-    minutes: exerciseMinutes,
-    cal: calBurned
-  });
-  
-  localStorage.setItem('fit_pro_v4', JSON.stringify(data));
-  
-  alert(`✅ 运动记录已保存！
-🏋️ ${currentExerciseName}
-⏱️ 时长：${exerciseMinutes}分钟
-🔥 消耗：${calBurned} kcal`);
-  
-  closeModal();
-  refreshAll();
-}
-
-function closeModal() {
-  clearInterval(timerInterval);
-  document.getElementById('exerciseModal').style.display = 'none';
-}
-
-// ========== 个人资料 ==========
-function saveProfile() {
-  let h = +document.getElementById('profileHeight').value;
-  let iw = +document.getElementById('profileStartWeight').value;
-  let tw = +document.getElementById('profileTargetWeight').value;
-
-  if(!h || h <= 0) {
-    alert('❌ 请输入有效身高（大于0）');
-    return;
-  }
-  if(!iw || iw <= 0) {
-    alert('❌ 请输入有效初始体重（大于0）');
-    return;
-  }
-  if(!tw || tw <= 0) {
-    alert('❌ 请输入有效目标体重（大于0）');
-    return;
-  }
-
-  data.profile = { h, iw, tw };
-  localStorage.setItem('fit_pro_v4', JSON.stringify(data));
-  alert('✅ 个人资料保存成功！');
-  refreshAll();
-  go('home');
-}
-
-// ========== AI建议 ==========
-function showAIDietAdvice() {
-  let d = data.daily[today];
-  if(!d?.m && !d?.n) {
-    alert('❌ 请先记录今日的体重数据');
-    return;
-  }
-  
-  const morningWeights = getSortedMorningWeights();
-  let adviceHtml = '';
-  
-  if(morningWeights.length >= 2) {
-    const latest = morningWeights[0].weight;
-    const prev = morningWeights[1].weight;
-    const diff = (prev - latest).toFixed(1);
-    
-    adviceHtml = `
-      <div class="advice-item">📊 晨间体重对比：</div>
-      <div class="advice-item">${morningWeights[1].date}：${prev}kg → ${morningWeights[0].date}：${latest}kg</div>
-      <div class="advice-item">✅ 减重：${diff}kg</div>
-    `;
-  }
-  
-  if(d.m && d.n) {
-    const dayDiff = (d.n - d.m).toFixed(1);
-    if(dayDiff > 1.5){
-      adviceHtml += `
-        <div class="advice-item">❌ 今日摄入过多（早晚波动+${dayDiff}kg）</div>
-        <div class="advice-item">💡 建议：明天减少精制碳水摄入，增加30分钟有氧运动</div>
-        <div class="advice-item">🥤 多喝水，晚餐尽量在7点前完成</div>
-      `;
-    }else if(dayDiff > 0.8){
-      adviceHtml += `
-        <div class="advice-item">⚠️ 今日摄入略多（早晚波动+${dayDiff}kg）</div>
-        <div class="advice-item">💡 建议：晚餐减半主食，多吃高蛋白食物</div>
-      `;
-    }else if(dayDiff >= 0){
-      adviceHtml += `
-        <div class="advice-item">✅ 今日摄入正常（早晚波动+${dayDiff}kg）</div>
-        <div class="advice-item">💡 建议：继续保持当前饮食节奏</div>
-      `;
-    }else{
-      adviceHtml += `
-        <div class="advice-item">🎉 减脂效果优秀（早晚波动${dayDiff}kg）</div>
-        <div class="advice-item">💡 建议：保持现有饮食，注意营养均衡</div>
-      `;
-    }
-  } else {
-    adviceHtml += `
-      <div class="advice-item">ℹ️ 请补充完整今日早晚体重，以获取更精准的饮食建议</div>
-    `;
-  }
-  
-  document.getElementById('adviceContent').innerHTML = adviceHtml;
-  document.getElementById('adviceModal').style.display = 'flex';
-}
-
-function closeAdvice() {
-  document.getElementById('adviceModal').style.display = 'none';
-}
-
-// ========== 在线升级功能 ==========
-function checkUpdate(){
-  document.getElementById('updateTitle').innerText = "检查更新";
-  document.getElementById('updateContent').innerText = "正在检查更新...";
-  document.getElementById('updateModal').style.display = "flex";
-
-  setTimeout(()=>{
-    document.getElementById('updateContent').innerHTML = `
-      <div>✅ 当前已是最新版本</div>
-      <div style="margin-top:8px;">当前版本：v${APP_VERSION}</div>
-      <div style="margin-top:8px;color:#aaa;">官方会持续更新功能</div>
-    `;
-  },800);
-}
-function closeUpdate(){
-  document.getElementById('updateModal').style.display = "none";
-}
-
-function saveUpdateUrl(){
-  const url = document.getElementById('updateUrl').value.trim();
-  if(url){
-    localStorage.setItem('updateServerUrl', url);
-    alert('✅ 服务器地址已保存！\n\n下次点击"检查更新"将从该地址获取最新版本。');
-  }else{
-    alert('❌ 请输入服务器地址');
-  }
-}
-
-function getUpdateUrl(){
-  return localStorage.getItem('updateServerUrl') || 'https://circletwo026533.github.io/my-weight-loss-app-server/';
-}
-
-async function checkUpdate(){
-  document.getElementById('updateTitle').innerText = "检查更新";
-  document.getElementById('updateContent').innerHTML = "正在检查更新...";
-  document.getElementById('updateModal').style.display = "flex";
-  
-  const serverUrl = getUpdateUrl();
-  
-  if(!serverUrl){
-    document.getElementById('updateContent').innerHTML = `
-      <div style="color:#ff6b6b;">⚠️ 未设置更新服务器地址</div>
-      <div style="margin-top:12px;color:#aaa;">
-        请先在上方输入你的更新服务器地址，格式如：<br>
-        https://example.com/app/<br><br>
-        然后保存，再点击"检查更新"
-      </div>
-    `;
-    return;
-  }
-  
-  try{
-    const versionUrl = serverUrl.replace(/\/$/,'' ) + '/version.json';
-    const response = await fetch(versionUrl + '?t=' + Date.now());
-    
-    if(!response.ok) throw new Error('无法连接服务器');
-    
-    const serverData = await response.json();
-    const serverVersion = serverData.version;
-    const currentVersion = APP_VERSION;
-    
-    if(serverVersion > currentVersion){
-      document.getElementById('updateContent').innerHTML = `
-        <div style="color:#10B981;">🎉 发现新版本！</div>
-        <div style="margin-top:12px;">
-          <div>当前版本：v${currentVersion}</div>
-          <div>最新版本：v${serverVersion}</div>
-        </div>
-        <div style="margin-top:12px;color:#aaa;">${serverData.desc||'优化了功能'}</div>
-        <button class="btn" style="margin-top:16px;" onclick="downloadUpdate()">立即更新</button>
-        <div style="margin-top:8px;font-size:12px;color:#666;">⚠️ 更新不会删除您的数据</div>
-      `;
-      window.pendingUpdate = serverData;
-    }else{
-      document.getElementById('updateContent').innerHTML = `
-        <div>✅ 当前已是最新版本</div>
-        <div style="margin-top:8px;">当前版本：v${currentVersion}</div>
-      `;
-    }
-  }catch(e){
-    document.getElementById('updateContent').innerHTML = `
-      <div style="color:#ff6b6b;">❌ 检查更新失败</div>
-      <div style="margin-top:8px;color:#aaa;">${e.message}</div>
-      <div style="margin-top:12px;font-size:12px;color:#666;">请检查服务器地址是否正确</div>
-    `;
-  }
-}
-
-async function downloadUpdate(){
-  if(!window.pendingUpdate) return;
-  
-  const serverUrl = getUpdateUrl();
-  document.getElementById('updateContent').innerHTML = `
-    <div>正在下载更新...</div>
-    <div style="margin-top:12px;" id="downloadProgress">0%</div>
-  `;
-  
-  try{
-    const indexUrl = serverUrl.replace(/\/$/,'' ) + '/index.html';
-    const response = await fetch(indexUrl + '?t=' + Date.now());
-    
-    if(!response.ok) throw new Error('下载失败');
-    
-    const html = await response.text();
-    
-    // 保存到本地存储
-    localStorage.setItem('pendingUpdateHtml', html);
-    localStorage.setItem('pendingUpdateVersion', window.pendingUpdate.version);
-    
-    document.getElementById('updateContent').innerHTML = `
-      <div style="color:#10B981;">✅ 下载完成！</div>
-      <div style="margin-top:12px;">准备安装更新...</div>
-      <button class="btn" style="margin-top:16px;" onclick="installUpdate()">立即重启更新</button>
-      <div style="margin-top:8px;font-size:12px;color:#666;">⚠️ 更新不会删除您的数据</div>
-    `;
-  }catch(e){
-    document.getElementById('updateContent').innerHTML = `
-      <div style="color:#ff6b6b;">❌ 下载失败</div>
-      <div style="margin-top:8px;color:#aaa;">${e.message}</div>
-    `;
-  }
-}
-
-function installUpdate(){
-  const html = localStorage.getItem('pendingUpdateHtml');
-  const version = localStorage.getItem('pendingUpdateVersion');
-  
-  if(html){
-    // 保存数据
-    const userData = localStorage.getItem('fit_pro_v4');
-    
-    // 写入新版本
-    document.open();
-    document.write(html);
-    document.close();
-    
-    // 恢复数据
-    if(userData){
-      localStorage.setItem('fit_pro_v4', userData);
-    }
-    
-    // 更新版本号
-    localStorage.setItem('app_version', version);
-  }
-}
-
-function getSortedMorningWeights() {
-  const morningWeights = [];
-  
-  Object.keys(data.daily).forEach(date => {
-    const record = data.daily[date];
-    if(record.m) {
-      morningWeights.push({
-        date: date,
-        weight: record.m
-      });
-    }
-  });
-  
-  return morningWeights.sort((a, b) => new Date(b.date) - new Date(a.date));
-}
-
-// ========== 全局刷新 ==========
-function refreshAll() {
-  const latestData = JSON.parse(localStorage.getItem('fit_pro_v4'));
-  if(latestData) data = latestData;
-  
-  refreshWeight();
-  renderWeightRecords();
-  renderDiet();
-  renderSportRecords();
-  renderHome();
-  renderWeightChart();
-  renderMineStats();
-}
-
-function refreshWeight() {
-  let d = data.daily[today] || {};
-  
-  document.getElementById('morningWt').innerText = d.m ? d.m+'kg' : '--';
-  document.getElementById('nightWt').innerText = d.n ? d.n+'kg' : '--';
-  
-  let diffEl = document.getElementById('diffWt');
-  let tipEl = document.getElementById('diffTip');
-  
-  if(d.m && d.n) {
-    let diff = (d.n - d.m).toFixed(1);
-    diffEl.innerText = diff + 'kg';
-    
-    let tip, color;
-    if(diff > 1.5) {
-      tip = '❌ 今日吃多了（波动超标）'; 
-      color = '#f56565';
-    } else if(diff > 0.8) {
-      tip = '⚠️ 略微超标（注意控制）'; 
-      color = '#f6ad55';
-    } else if(diff >= 0) {
-      tip = '✅ 正常波动（继续保持）'; 
-      color = '#10B981';
-    } else {
-      tip = '🔥 减脂效果优秀（继续加油）'; 
-      color = '#34d399';
-    }
-    
-    tipEl.innerText = tip;
-    tipEl.style.color = color;
-  } else {
-    diffEl.innerText = '--';
-    tipEl.innerText = '';
-  }
-  
-  const morningWeights = getSortedMorningWeights();
-  let analysisEl = document.getElementById('weightAnalysis');
-  
-  if(morningWeights.length >= 2) {
-    const latest = morningWeights[0];
-    const prev = morningWeights[1];
-    const diff = (prev.weight - latest.weight).toFixed(1);
-    
-    let analysisHtml = `
-      <div style="font-size:16px;margin-bottom:8px;">
-        ${prev.date} → ${latest.date}
-      </div>
-      <div style="font-size:20px;font-weight:700;color:var(--primary);">
-        ${prev.weight}kg → ${latest.weight}kg
-      </div>
-      <div style="margin-top:8px;">
-        减重：<span style="color:${diff > 0 ? '#10B981' : '#f56565'}">${diff}kg</span>
-      </div>
-    `;
-    
-    analysisEl.innerHTML = analysisHtml;
-  } else if(morningWeights.length === 1) {
-    analysisEl.innerHTML = `
-      <div>仅记录了${morningWeights[0].date}的晨间体重</div>
-      <div style="margin-top:8px;color:#aaa;">请继续记录以查看减重对比</div>
-    `;
-  } else {
-    analysisEl.innerHTML = '请记录至少两天的晨间体重以查看对比';
-  }
-}
-
-function renderWeightRecords() {
-  const dates = Object.keys(data.daily).sort((a,b) => new Date(b.date) - new Date(a.date));
-  
-  if(dates.length === 0) {
-    document.getElementById('weightRecordsList').innerHTML = '<div style="color:#888;text-align:center;padding:20px 0;">暂无体重记录</div>';
-    return;
-  }
-  
-  let html = '';
-  dates.forEach(date => {
-    const record = data.daily[date];
-    const dayDiff = record.m && record.n ? (record.n - record.m).toFixed(1) : '-';
-    
-    html += `<div class="record-item">
-      <div class="record-info">
-        <div style="font-weight:600;">${date}</div>
-        <div style="font-size:14px;color:#aaa;">
-          早晨：${record.m ? record.m+'kg' : '--'} | 
-          晚上：${record.n ? record.n+'kg' : '--'}
-        </div>
-      </div>
-      <div class="record-value">
-        ${dayDiff}kg
-      </div>
-    </div>`;
-  });
-  
-  document.getElementById('weightRecordsList').innerHTML = html;
-}
-
-function renderDiet() {
-  let list = data.diet.filter(i => i.d === today);
-  let html = '';
-  let total = 0;
-  if(list.length > 0) {
-    list.forEach(i => {
-      total += i.c;
-      html += `<div style="padding:10px 0;border-bottom:1px solid #333;">
-        <div>${i.t}：${i.n} × ${i.a}${i.u}</div>
-        <div style="color:var(--primary);font-weight:600;">${i.c} kcal</div>
-      </div>`;
-    });
-    html += `<div style="margin-top:12px;padding-top:12px;border-top:1px solid #333;">
-      <span style="font-weight:bold;">今日总热量：</span>
-      <span style="color:var(--primary);font-size:18px;">${total} kcal</span>
-    </div>`;
-  } else {
-    html = '<div style="color:#888;text-align:center;padding:20px 0;">暂无饮食记录</div>';
-  }
-  document.getElementById('dietRecords').innerHTML = html;
-}
-
-function renderSportRecords() {
-  const todaySport = data.sport.filter(i => i.d === today);
-  let todayHtml = '';
-  let todayTotalTime = 0;
-  let todayTotalCal = 0;
-  
-  if(todaySport.length > 0) {
-    todaySport.forEach(record => {
-      todayTotalTime += parseFloat(record.minutes);
-      todayTotalCal += record.cal;
-      todayHtml += `<div class="record-item">
-        <div class="record-info">
-          <div style="font-weight:600;">${record.name}</div>
-          <div style="font-size:14px;color:#aaa;">${record.d}</div>
-        </div>
-        <div class="record-value">
-          ${record.minutes}分钟 / ${record.cal}kcal
-        </div>
-      </div>`;
-    });
-  } else {
-    todayHtml = '<div style="color:#888;text-align:center;padding:20px 0;">暂无运动记录</div>';
-  }
-  
-  document.getElementById('todaySportRecords').innerHTML = todayHtml;
-  document.getElementById('totalSportTime').innerText = todayTotalTime.toFixed(1) + '分钟';
-  document.getElementById('totalSportCal').innerText = todayTotalCal + ' kcal';
-  
-  const allSport = [...data.sport].sort((a,b) => new Date(b.d) - new Date(a.d));
-  let allHtml = '';
-  
-  if(allSport.length > 0) {
-    allSport.forEach(record => {
-      allHtml += `<div class="record-item">
-        <div class="record-info">
-          <div style="font-weight:600;">${record.name}</div>
-          <div style="font-size:14px;color:#aaa;">${record.d}</div>
-        </div>
-        <div class="record-value">
-          ${record.minutes}分钟 / ${record.cal}kcal
-        </div>
-      </div>`;
-    });
-  } else {
-    allHtml = '<div style="color:#888;text-align:center;padding:20px 0;">暂无运动记录</div>';
-  }
-  
-  document.getElementById('sportRecordsList').innerHTML = allHtml;
-}
-
-// BMI 自动跟随晨间最新体重实时更新
-function renderHome() {
-  let p = data.profile;
-  const morningWeights = getSortedMorningWeights();
-  
-  const days = morningWeights.length;
-  document.getElementById('day').innerText = days;
-  
-  if(p.h && morningWeights.length > 0) {
-    const latestWeight = morningWeights[0].weight;
-    let bmi = (latestWeight / ((p.h / 100) ** 2)).toFixed(1);
-    let lost = (p.iw - latestWeight).toFixed(1);
-    document.getElementById('lost').innerText = lost + 'kg';
-    
-    let bmiTip = '';
-    if(bmi < 18.5) bmiTip = '（偏瘦）';
-    else if(bmi < 24) bmiTip = '（正常）';
-    else if(bmi < 28) bmiTip = '（超重）';
-    else bmiTip = '（肥胖）';
-    document.getElementById('bmi').innerText = bmi + bmiTip;
-  } else {
-    document.getElementById('bmi').innerText = '--';
-    document.getElementById('lost').innerText = '0 kg';
-  }
-}
-
-function renderMineStats() {
-  let allSportTime = 0;
-  let allSportCal = 0;
-  
-  data.sport.forEach(record => {
-    allSportTime += parseFloat(record.minutes);
-    allSportCal += record.cal;
-  });
-  
-  document.getElementById('allSportTime').innerText = allSportTime.toFixed(1) + '分钟';
-  document.getElementById('allSportCal').innerText = allSportCal + ' kcal';
-  
-  const morningWeights = getSortedMorningWeights();
-  document.getElementById('weightRecordDays').innerText = morningWeights.length + '天';
-  
-  if(morningWeights.length > 0) {
-    const totalLost = (data.profile.iw - morningWeights[0].weight).toFixed(1);
-    document.getElementById('totalLostWeight').innerText = totalLost + ' kg';
-  } else {
-    document.getElementById('totalLostWeight').innerText = '0 kg';
-  }
-}
-
-function renderWeightChart() {
-  const morningWeights = getSortedMorningWeights();
-  const ctx = document.getElementById('weightChart').getContext('2d');
-  
-  if(window.chart) window.chart.destroy();
-  
-  const labels = morningWeights.map(item => item.date);
-  const weights = morningWeights.map(item => item.weight);
-  
-  window.chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: '晨间体重(kg)',
-        data: weights,
-        borderColor: '#10B981',
-        backgroundColor: 'rgba(16,185,129,0.1)',
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: '#fff',
-        pointBorderColor: '#10B981'
-      }]
+// ========== 消防法规库【新增】==========
+const fireLawLib = [
+    {
+        keyword:["开业检查","500平","公众聚集场所","营业前检查"],
+        content:`依据《中华人民共和国消防法》第十五条：公众聚集场所在投入使用、营业前，建设单位或者使用单位应当向场所所在地的县级以上地方人民政府消防救援机构申请消防安全检查，作出场所符合消防技术标准和管理规定的承诺，提交规定的材料，并对其承诺和材料的真实性负责。
+本商铺属于公众聚集场所，装修面积大于300㎡或装修造价超过30万元，装修工程需要办理消防备案；面积＞500㎡餐饮商铺必须完成【公众聚集场所投入使用营业前消防安全检查】，取得检查合格后方可投入营业。`
     },
-    options: {
-      responsive: true,
-      plugins: { 
-        legend: {
-          display: true,
-          labels: { color: '#fff' }
-        } 
-      },
-      scales: {
-        y: { 
-          grid: { color: 'rgba(255,255,255,0.05)' }, 
-          ticks: { color: '#aaa' },
-          title: { display: true, text: '晨间体重(kg)', color: '#aaa' }
-        },
-        x: { 
-          grid: { display: false }, 
-          ticks: { color: '#aaa' },
-          title: { display: true, text: '日期', color: '#aaa' }
-        }
-      }
-    }
-  });
-}
-</script>
-</body>
-</html>
+    {
+        keyword:["装修材料","A级","B1级","GB50222"],
+        content:`依据GB50222-2017《建筑内部装修设计防火规范》，商场商铺顶棚装修材料燃烧性能等级应为A级，墙面装修材料燃烧性能等级不低于B1级，地面材料不低于B1级。严禁使用燃烧性能不达标木质板材大面积用于天花、墙面。`
+    },
+    {
+        keyword:["防火分区","隔墙","到顶","GB50016"],
+        content:`依据GB50016《建筑设计防火规范》，商铺隔墙作为防火分隔墙体必须砌筑至楼板底部，不得留有空隙；后厨区域与前厅区域应独立划分防火分区，防火分隔墙体不得开设违规洞口。`
+    },
+    {
+        keyword:["喷淋","喷头","厨房喷淋","93度"],
+        content:`依据《自动喷水灭火系统设计规范GB50084》，餐饮厨房区域应采用93℃绿色快速响应洒水喷头；商铺公共营业区域采用68℃红色快速响应喷头，喷头不得遮挡、移位。`
+    },
+    {
+        keyword:["厨房灭火","灶台自动灭火"],
